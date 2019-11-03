@@ -33,6 +33,7 @@ RUN conda config --add channels conda-forge
 RUN conda install jupyter_dashboards
 
 # copy contents of dir
-COPY --chown=${NB_UID} . ${HOME}
+COPY . ${HOME}
+RUN chown -R ${NB_UID} ${HOME}
 
 WORKDIR ${HOME}
