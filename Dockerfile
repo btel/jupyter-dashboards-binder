@@ -2,15 +2,9 @@ FROM debian:8.5
 
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 
-RUN apt-get update --fix-missing && apt-get install -y wget bzip2 ca-certificates \
-    libglib2.0-0
+# install packages
 
-RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
-    wget --quiet https://repo.continuum.io/archive/Anaconda3-4.4.0-Linux-x86_64.sh -O ~/anaconda.sh && \
-    /bin/bash ~/anaconda.sh -b -p /opt/conda && \
-    rm ~/anaconda.sh
-
-ENV PATH /opt/conda/bin:$PATH
+RUN apt-get update --fix-missing && apt-get install -y wget bzip2 ca-certificates
 
 # create user
 
@@ -25,14 +19,20 @@ RUN adduser --disabled-password \
     --uid ${NB_UID} \
     ${NB_USER}
 
-# copy contents of dir
-COPY . ${HOME}
-USER root
-RUN chown -R ${NB_UID} ${HOME}
 USER ${NB_USER}
 
+
+RUN wget --quiet https://repo.continuum.io/archive/Anaconda3-4.4.0-Linux-x86_64.sh -O ~/anaconda.sh && \
+    /bin/bash ~/anaconda.sh -b -p $HOME/anaconda && \
+    rm ~/anaconda.sh
+
+ENV PATH $HOME/anaconda/bin:$PATH
+
 # install jupyter-dashboards
-USER root
 RUN conda config --add channels conda-forge
 RUN conda install jupyter_dashboards
-USER ${NB_USER}
+
+# copy contents of dir
+COPY --chown=${NB_UID} . ${HOME}
+
+WORKDIR ${HOME}
