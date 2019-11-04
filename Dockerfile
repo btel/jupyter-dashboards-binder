@@ -35,4 +35,6 @@ USER ${NB_USER}
 USER root
 RUN conda config --add channels conda-forge
 RUN conda install jupyter_dashboards
+RUN conda install notebook==5.1
 USER ${NB_USER}
+WORKDIR ${HOME}
